@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Sign in · {{ app_name }}{% endblock %}
+
+{% block body %}
+<main class="auth-wrap" id="main-content" tabindex="-1">
+  <section class="auth-card glass">
+    <div class="auth-brand">
+      <div class="brand-mark lg">RF</div>
+      <h1>{{ app_name }}</h1>
+      <p>Simple rent management for landlords and property owners.</p>
+    </div>
+
+    {% if configured is defined and not configured %}
+    <div class="alert alert-warn">
+      Supabase is not configured yet. Copy <code>.env.example</code> to <code>.env</code>
+      and add your <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code>.
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+
+    <div class="tabs" id="authTabs">
+      <button class="tab active" data-tab="login">Sign in</button>
+      {% if allow_signup %}<button class="tab" data-tab="signup">Create account</button>{% endif %}
+    </div>
+
+    <form class="auth-form" id="loginForm" autocomplete="on">
+      <div class="field">
+        <label for="loginEmail">Email address</label>
+        <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required />
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginSubmit">
+        <span class="btn-label">Sign in</span>
+        <span class="spinner spinner-sm" hidden></span>
+      </button>
+    </form>
+
+    {% if allow_signup %}
+    <form class="auth-form" id="signupForm" hidden autocomplete="on">
+      <div class="field">
+        <label for="signupName">Full name</label>
+        <input type="text" id="signupName" name="full_name" placeholder="Your name" required minlength="2" />
+      </div>
+      <div class="field">
+        <label for="signupEmail">Email address</label>
+        <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required />
+      </div>
+      <div class="field">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" name="password" placeholder="At least 6 characters" required minlength="6" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="signupSubmit">
+        <span class="btn-label">Create account</span>
+        <span class="spinner spinner-sm" hidden></span>
+      </button>
+    </form>
+    {% endif %}
+
+    <p class="auth-foot">Protected by Supabase Authentication</p>
+  </section>
+
+  <section class="auth-showcase">
+    <div class="showcase-card glass float-a">
+      <span class="showcase-label">Monthly rent</span>
+      <strong>₹ 1,24,000</strong>
+      <span class="pill pill-success">+12% collected</span>
+    </div>
+    <div class="showcase-card glass float-b">
+      <span class="showcase-label">Occupancy</span>
+      <strong>92%</strong>
+      <div class="mini-bar"><i style="width:92%"></i></div>
+    </div>
+    <div class="showcase-card glass float-c">
+      <span class="showcase-label">Pending rent</span>
+      <strong>₹ 18,000</strong>
+      <span class="pill pill-warn">2 tenants</span>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/login.js"></script>
+{% endblock %}

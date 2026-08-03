@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Settings · {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+
+  <main class="main" id="main-content" tabindex="-1">
+    {% with heading = "Settings", subheading = "Your profile, appearance and security" %}
+      {% include "partials/topbar.html" %}
+    {% endwith %}
+
+    <div class="content">
+      <section class="split-grid">
+        <div class="glass card">
+          <div class="card-head">
+            <div>
+              <h2>Profile</h2>
+              <p>How your account appears inside the app</p>
+            </div>
+          </div>
+          <form id="profileForm" class="stack">
+            <div class="field">
+              <label for="profileEmail">Email (read only)</label>
+              <input type="email" id="profileEmail" value="{{ email }}" disabled />
+            </div>
+            <div class="field">
+              <label for="profileName">Full name</label>
+              <input type="text" id="profileName" maxlength="120" placeholder="Your name" />
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="profileCompany">Company / portfolio name</label>
+                <input type="text" id="profileCompany" maxlength="120" placeholder="Sharma Estates" />
+              </div>
+              <div class="field">
+                <label for="profilePhone">Phone</label>
+                <input type="tel" id="profilePhone" maxlength="30" placeholder="9876543210" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="profileCurrency">Currency</label>
+              <select id="profileCurrency" class="select">
+                <option value="INR">INR — Indian Rupee (₹)</option>
+                <option value="USD">USD — US Dollar ($)</option>
+                <option value="EUR">EUR — Euro (€)</option>
+                <option value="GBP">GBP — Pound (£)</option>
+                <option value="AED">AED — Dirham (د.إ)</option>
+                <option value="PKR">PKR — Rupee (₨)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="profileSubmit">
+              <span class="btn-label">Save profile</span>
+              <span class="spinner spinner-sm" hidden></span>
+            </button>
+          </form>
+        </div>
+
+        <div class="stack">
+          <div class="glass card">
+            <div class="card-head">
+              <div>
+                <h2>Appearance</h2>
+                <p>Choose how the interface looks</p>
+              </div>
+            </div>
+            <div class="theme-options" id="themeOptions">
+              <button class="theme-option" data-theme-choice="light">
+                <span class="theme-preview light"></span>
+                <strong>Light</strong>
+              </button>
+              <button class="theme-option" data-theme-choice="dark">
+                <span class="theme-preview dark"></span>
+                <strong>Dark</strong>
+              </button>
+              <button class="theme-option" data-theme-choice="system">
+                <span class="theme-preview system"></span>
+                <strong>System</strong>
+              </button>
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="card-head">
+              <div>
+                <h2>Security</h2>
+                <p>Update your Supabase account password</p>
+              </div>
+            </div>
+            <form id="passwordForm" class="stack">
+              <div class="field">
+                <label for="newPassword">New password</label>
+                <input type="password" id="newPassword" minlength="6" placeholder="At least 6 characters" required />
+              </div>
+              <div class="field">
+                <label for="confirmPassword">Confirm new password</label>
+                <input type="password" id="confirmPassword" minlength="6" placeholder="Repeat password" required />
+              </div>
+              <button type="submit" class="btn btn-soft" id="passwordSubmit">
+                <span class="btn-label">Update password</span>
+                <span class="spinner spinner-sm" hidden></span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/layout.js"></script>
+<script src="/static/js/settings.js"></script>
+{% endblock %}

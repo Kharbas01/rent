@@ -1,0 +1,22 @@
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
+
+  <div class="page-heading">
+    <h1>{% block heading %}{{ heading }}{% endblock %}</h1>
+    <p>{{ subheading }}</p>
+  </div>
+
+  <div class="topbar-actions">
+    <div class="global-search" role="search">
+      <span class="search-icon" aria-hidden="true">&#128269;</span>
+      <label for="globalSearch" class="sr-only">Search tenants or properties</label>
+      <input type="search" id="globalSearch" placeholder="Search tenants or properties…" autocomplete="off" aria-label="Search tenants or properties" />
+      <div class="search-results" id="searchResults" hidden role="listbox" aria-label="Search results"></div>
+    </div>
+
+    <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle dark / light mode">
+      <span class="theme-icon-light">&#9788;</span>
+      <span class="theme-icon-dark">&#9789;</span>
+    </button>
+  </div>
+</header>

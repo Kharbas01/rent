@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+
+  <main class="main" id="main-content" tabindex="-1">
+    {% with heading = "Dashboard", subheading = "A live overview of your rental portfolio" %}
+      {% include "partials/topbar.html" %}
+    {% endwith %}
+
+    <div class="content">
+      <section class="stat-grid" id="statGrid">
+        <div class="skeleton-card"></div><div class="skeleton-card"></div>
+        <div class="skeleton-card"></div><div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </section>
+
+      <section class="split-grid">
+        <div class="glass card">
+          <div class="card-head">
+            <div>
+              <h2>Collection trend</h2>
+              <p>Rent collected over the last 6 months</p>
+            </div>
+          </div>
+          <div class="chart" id="trendChart">
+            <div class="loader-block"><span class="spinner"></span></div>
+          </div>
+        </div>
+
+        <div class="glass card">
+          <div class="card-head">
+            <div>
+              <h2>Outstanding rent</h2>
+              <p>Oldest unpaid months first</p>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="/payments">View all</a>
+          </div>
+          <div id="overdueList">
+            <div class="loader-block"><span class="spinner"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="glass card">
+        <div class="card-head">
+          <div>
+            <h2>Recent payments</h2>
+            <p>Latest rent received</p>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="/payments">Manage rent</a>
+        </div>
+        <div class="table-wrap" id="recentPayments">
+          <div class="loader-block"><span class="spinner"></span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/layout.js"></script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

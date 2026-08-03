@@ -1,0 +1,56 @@
+<!-- AI assistant: floating button + chat panel, present on every authenticated page -->
+<button
+  type="button"
+  id="aiChatToggle"
+  class="ai-chat-fab"
+  aria-label="Open AI assistant"
+  aria-haspopup="dialog"
+  aria-expanded="false"
+  aria-controls="aiChatPanel"
+>
+  <span class="ai-chat-fab-icon" aria-hidden="true">&#10024;</span>
+</button>
+
+<section
+  id="aiChatPanel"
+  class="ai-chat-panel"
+  role="dialog"
+  aria-label="AI assistant"
+  aria-modal="false"
+  hidden
+>
+  <header class="ai-chat-header">
+    <div class="ai-chat-header-info">
+      <span class="ai-chat-avatar" aria-hidden="true">&#129302;</span>
+      <div>
+        <p class="ai-chat-title">RentFlow Assistant</p>
+        <p class="ai-chat-subtitle" id="aiChatStatus">Online</p>
+      </div>
+    </div>
+    <div class="ai-chat-header-actions">
+      <button type="button" class="icon-btn" id="aiChatThemeToggle" aria-label="Toggle theme" title="Toggle dark/light mode">&#9788;</button>
+      <button type="button" class="icon-btn" id="aiChatClose" aria-label="Close AI assistant">&times;</button>
+    </div>
+  </header>
+
+  <div class="ai-chat-messages" id="aiChatMessages" aria-live="polite"></div>
+
+  <div class="ai-chat-suggestions" id="aiChatSuggestions">
+    <button type="button" class="ai-chip">Pending rent</button>
+    <button type="button" class="ai-chip">Vacant properties</button>
+    <button type="button" class="ai-chip">This month's income</button>
+    <button type="button" class="ai-chip">Next renewal</button>
+  </div>
+
+  <form class="ai-chat-input-row" id="aiChatForm">
+    <label for="aiChatInput" class="sr-only">Ask the AI assistant</label>
+    <input
+      type="text"
+      id="aiChatInput"
+      autocomplete="off"
+      maxlength="500"
+      placeholder="Ask in English, Hindi or Hinglish…"
+    />
+    <button type="submit" class="ai-chat-send" id="aiChatSend" aria-label="Send message">&#10148;</button>
+  </form>
+</section>

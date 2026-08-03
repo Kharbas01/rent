@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Tenants · {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+
+  <main class="main" id="main-content" tabindex="-1">
+    {% with heading = "Tenants", subheading = "Agreements, contacts and deposits in one place" %}
+      {% include "partials/topbar.html" %}
+    {% endwith %}
+
+    <div class="content">
+      <section class="glass card">
+        <div class="card-head">
+          <div class="filter-row">
+            <div class="input-icon">
+              <span>&#128269;</span>
+              <input type="search" id="tenantSearch" placeholder="Search by name, phone or email…" />
+            </div>
+            <select id="tenantActiveFilter" class="select">
+              <option value="all">All tenants</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="addTenantBtn">+ New tenant</button>
+        </div>
+
+        <div class="table-wrap" id="tenantTable">
+          <div class="loader-block"><span class="spinner"></span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="tenantModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass wide" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="tenantModalTitle">New tenant</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="tenantForm" class="modal-body">
+      <input type="hidden" id="tenantId" />
+      <div class="grid-2">
+        <div class="field">
+          <label for="tenantName">Tenant name *</label>
+          <input type="text" id="tenantName" required minlength="2" maxlength="120" placeholder="Rahul Sharma" />
+        </div>
+        <div class="field">
+          <label for="tenantPhone">Phone number</label>
+          <input type="tel" id="tenantPhone" maxlength="30" placeholder="9876543210" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="tenantEmail">Email</label>
+          <input type="email" id="tenantEmail" placeholder="tenant@example.com" />
+        </div>
+        <div class="field">
+          <label for="tenantProperty">Property assigned</label>
+          <select id="tenantProperty" class="select">
+            <option value="">— Not assigned —</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="tenantRent">Rent amount *</label>
+          <input type="number" id="tenantRent" min="0" step="0.01" value="0" required />
+        </div>
+        <div class="field">
+          <label for="tenantDeposit">Security deposit</label>
+          <input type="number" id="tenantDeposit" min="0" step="0.01" value="0" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="tenantStart">Agreement start date</label>
+          <input type="date" id="tenantStart" />
+        </div>
+        <div class="field">
+          <label for="tenantEnd">Agreement end date</label>
+          <input type="date" id="tenantEnd" />
+        </div>
+      </div>
+
+      <!-- New: due date, agreement duration, rent increase -->
+      <div class="grid-2">
+        <div class="field">
+          <label for="tenantDueDay">Rent due day of month *</label>
+          <input type="number" id="tenantDueDay" min="1" max="31" value="1" required />
+        </div>
+        <div class="field">
+          <label for="tenantDuration">Agreement duration (months)</label>
+          <input type="number" id="tenantDuration" min="1" max="600" placeholder="e.g. 11" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="tenantRentIncrease">Rent increase (%)</label>
+        <input type="number" id="tenantRentIncrease" min="0" max="100" step="0.01" value="0" placeholder="e.g. 5.00" />
+        <p class="field-hint">Applied automatically to the current rent at the end of every agreement cycle.</p>
+      </div>
+
+      <div id="tenantRentInfo" class="rent-info-panel" hidden aria-live="polite"></div>
+
+      <div class="field">
+        <label class="switch">
+          <input type="checkbox" id="tenantActive" checked />
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+          <span>Tenant is currently active</span>
+        </label>
+      </div>
+      <div class="field">
+        <label for="tenantNotes">Notes</label>
+        <textarea id="tenantNotes" rows="2" maxlength="1000" placeholder="Optional notes"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="tenantSubmit">
+          <span class="btn-label">Save tenant</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/layout.js"></script>
+<script src="/static/js/tenants.js"></script>
+{% endblock %}

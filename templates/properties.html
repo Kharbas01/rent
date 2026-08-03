@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Properties · {{ app_name }}{% endblock %}
+{% block body %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="main" id="main-content" tabindex="-1">
+    {% with heading = "Properties", subheading = "Manage all your rental properties" %}
+      {% include "partials/topbar.html" %}
+    {% endwith %}
+    <div class="content">
+      <section class="glass card">
+        <div class="card-head">
+          <div class="filter-row">
+            <div class="input-icon">
+              <span>&#128269;</span>
+              <input type="text" id="propertySearch" placeholder="Search by name, address, type…" />
+            </div>
+            <select class="select" id="propertyStatusFilter">
+              <option value="all">All statuses</option>
+              <option value="Occupied">Occupied</option>
+              <option value="Vacant">Vacant</option>
+            </select>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-primary" id="addPropertyBtn">+ Add property</button>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="propertyTable">
+          <div class="loader-block"><span class="spinner"></span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="propertyModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="propertyModalTitle">New property</h2>
+      <button class="icon-btn" data-close>&#10005;</button>
+    </div>
+    <form id="propertyForm">
+      <div class="modal-body">
+        <input type="hidden" id="propertyId" />
+        <div class="field">
+          <label for="propertyName">Property name</label>
+          <input type="text" id="propertyName" required minlength="2" placeholder="e.g. Sunrise Apartments" />
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="propertyType">Type</label>
+            <select class="select" id="propertyType">
+              <option value="Apartment">Apartment</option>
+              <option value="House">House</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="propertyStatus">Status</label>
+            <select class="select" id="propertyStatus">
+              <option value="Vacant">Vacant</option>
+              <option value="Occupied">Occupied</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="propertyAddress">Address</label>
+          <input type="text" id="propertyAddress" placeholder="Street, city" />
+        </div>
+        <div class="field">
+          <label for="propertyRent">Monthly rent (₹)</label>
+          <input type="number" id="propertyRent" min="0" step="1" required />
+        </div>
+        <div class="field">
+          <label for="propertyNotes">Notes (optional)</label>
+          <textarea id="propertyNotes" rows="2" placeholder="Any additional details…"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="propertySubmit">
+          <span class="btn-label">Save</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/layout.js"></script>
+<script src="/static/js/properties.js"></script>
+{% endblock %}

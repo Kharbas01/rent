@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}Rent &amp; Payments · {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+
+  <main class="main" id="main-content" tabindex="-1">
+    {% with heading = "Rent & Payments", subheading = "Track dues, record payments and view history" %}
+      {% include "partials/topbar.html" %}
+    {% endwith %}
+
+    <div class="content">
+      <section class="stat-grid three" id="paymentTotals">
+        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+      </section>
+
+      <section class="glass card">
+        <div class="card-head">
+          <div class="filter-row">
+            <div class="input-icon">
+              <span>&#128269;</span>
+              <input type="search" id="paymentSearch" placeholder="Search tenant or property…" />
+            </div>
+            <input type="month" id="paymentMonthFilter" class="select" />
+            <select id="paymentStatusFilter" class="select">
+              <option value="all">All statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Partial">Partial</option>
+              <option value="Paid">Paid</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" id="clearFilters">Clear</button>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft" id="generateBtn">&#8635; Generate month</button>
+            <button class="btn btn-soft" id="reportBtn">&#128196; Generate report</button>
+            <button class="btn btn-primary" id="addPaymentBtn">+ New record</button>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="paymentTable">
+          <div class="loader-block"><span class="spinner"></span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- Create / edit rent record -->
+<div class="modal" id="paymentModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="paymentModalTitle">New rent record</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="paymentForm" class="modal-body">
+      <input type="hidden" id="paymentId" />
+      <div class="grid-2">
+        <div class="field">
+          <label for="paymentTenant">Tenant *</label>
+          <select id="paymentTenant" class="select" required>
+            <option value="">Select a tenant</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="paymentMonth">Rent month *</label>
+          <input type="month" id="paymentMonth" required />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="paymentDue">Amount due *</label>
+          <input type="number" id="paymentDue" min="0" step="0.01" required />
+        </div>
+        <div class="field">
+          <label for="paymentPaid">Amount paid</label>
+          <input type="number" id="paymentPaid" min="0" step="0.01" value="0" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="paymentDate">Payment date</label>
+          <input type="date" id="paymentDate" />
+        </div>
+        <div class="field">
+          <label for="paymentMethod">Payment method</label>
+          <select id="paymentMethod" class="select">
+            <option value="">— None —</option>
+            <option>Cash</option>
+            <option>Bank Transfer</option>
+            <option>UPI</option>
+            <option>Card</option>
+            <option>Cheque</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- New: payment type -->
+      <div class="field">
+        <label>Payment type *</label>
+        <div class="tabs" id="paymentTypeTabs" role="radiogroup">
+          <button type="button" class="tab active" data-type="Cash">Cash</button>
+          <button type="button" class="tab" data-type="Online">Online</button>
+          <button type="button" class="tab" data-type="Hybrid">Hybrid</button>
+        </div>
+        <input type="hidden" id="paymentType" value="Cash" />
+      </div>
+      <div class="field" id="paymentTypeNoteField" hidden>
+        <label for="paymentTypeNote">Hybrid breakdown *</label>
+        <input type="text" id="paymentTypeNote" maxlength="300" placeholder="e.g. ₹5,000 Cash + ₹10,000 UPI" />
+      </div>
+
+      <div class="field">
+        <label for="paymentNotes">Notes</label>
+        <textarea id="paymentNotes" rows="2" maxlength="500" placeholder="Optional notes"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="paymentSubmit">
+          <span class="btn-label">Save record</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Mark rent paid -->
+<div class="modal" id="payModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Mark rent paid</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="payForm" class="modal-body">
+      <input type="hidden" id="payRecordId" />
+      <div class="pay-summary" id="paySummary"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="payAmount">Amount received *</label>
+          <input type="number" id="payAmount" min="0" step="0.01" required />
+        </div>
+        <div class="field">
+          <label for="payDate">Payment date *</label>
+          <input type="date" id="payDate" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="payMethod">Payment method *</label>
+        <select id="payMethod" class="select" required>
+          <option>Cash</option>
+          <option>Bank Transfer</option>
+          <option>UPI</option>
+          <option>Card</option>
+          <option>Cheque</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <!-- New: payment type -->
+      <div class="field">
+        <label>Payment type *</label>
+        <div class="tabs" id="payTypeTabs" role="radiogroup">
+          <button type="button" class="tab active" data-type="Cash">Cash</button>
+          <button type="button" class="tab" data-type="Online">Online</button>
+          <button type="button" class="tab" data-type="Hybrid">Hybrid</button>
+        </div>
+        <input type="hidden" id="payType" value="Cash" />
+      </div>
+      <div class="field" id="payTypeNoteField" hidden>
+        <label for="payTypeNote">Hybrid breakdown *</label>
+        <input type="text" id="payTypeNote" maxlength="300" placeholder="e.g. ₹5,000 Cash + ₹10,000 UPI" />
+      </div>
+
+      <div class="field">
+        <label for="payNotes">Notes</label>
+        <input type="text" id="payNotes" maxlength="500" placeholder="Receipt no., reference…" />
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="paySubmit">
+          <span class="btn-label">Confirm payment</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Generate month -->
+<div class="modal" id="generateModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass small" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Generate rent records</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="generateForm" class="modal-body">
+      <p class="muted">
+        Creates a pending rent record for every active tenant whose agreement covers
+        the selected month. Existing records are never overwritten.
+      </p>
+      <div class="field">
+        <label for="generateMonth">Rent month *</label>
+        <input type="month" id="generateMonth" required />
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="generateSubmit">
+          <span class="btn-label">Generate</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Generate report -->
+<div class="modal" id="reportModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass small" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Generate report</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="reportForm" class="modal-body">
+      <p class="muted">
+        Download a professional PDF report of rent collection for the chosen period.
+      </p>
+      <div class="field">
+        <label for="reportRange">Period *</label>
+        <select id="reportRange" class="select" required>
+          <option value="all">Till today (all records)</option>
+          <option value="6m">Last 6 months</option>
+          <option value="12m">Last 12 months</option>
+          <option value="24m">Last 2 years</option>
+        </select>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="reportSubmit">
+          <span class="btn-label">Download PDF</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Payment history drawer -->
+<div class="modal" id="historyModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass wide" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Payment details</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body" id="historyBody"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/layout.js"></script>
+<script src="/static/js/payments.js"></script>
+{% endblock %}

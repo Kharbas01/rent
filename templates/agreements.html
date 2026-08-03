@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Agreements · {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+
+  <main class="main">
+    {% with heading = "Agreements", subheading = "Rental agreement documents, stored on Google Drive" %}
+      {% include "partials/topbar.html" %}
+    {% endwith %}
+
+    <div class="content">
+      {% if not drive_configured %}
+      <div class="alert alert-warn">
+        Google Drive is not configured yet. Set <code>GOOGLE_SERVICE_ACCOUNT_FILE</code> and
+        <code>GOOGLE_DRIVE_FOLDER_ID</code> in <code>.env</code>, then restart the server.
+      </div>
+      {% endif %}
+
+      <section class="glass card">
+        <div class="card-head">
+          <div class="filter-row">
+            <div class="input-icon">
+              <span>&#128269;</span>
+              <input type="search" id="agreementSearch" placeholder="Search by file name…" />
+            </div>
+            <select id="agreementPropertyFilter" class="select">
+              <option value="">All properties</option>
+            </select>
+            <select id="agreementTenantFilter" class="select">
+              <option value="">All tenants</option>
+            </select>
+            <select id="agreementStatusFilter" class="select">
+              <option value="all">All statuses</option>
+              <option value="Active">Active</option>
+              <option value="Expiring Soon">Expiring Soon</option>
+              <option value="Expired">Expired</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" id="agreementClearFilters">Clear</button>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-primary" id="addAgreementBtn">+ New agreement</button>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="agreementTable">
+          <div class="loader-block"><span class="spinner"></span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- New / edit agreement -->
+<div class="modal" id="agreementModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass wide" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="agreementModalTitle">New agreement</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="agreementForm" class="modal-body">
+      <input type="hidden" id="agreementId" />
+
+      <!-- Source tabs: only shown when creating a new agreement -->
+      <div class="field" id="agreementSourceField">
+        <label>Document source *</label>
+        <div class="tabs" id="agreementSourceTabs">
+          <button type="button" class="tab active" data-source="upload">Upload file</button>
+          <button type="button" class="tab" data-source="camera">Scan with camera</button>
+        </div>
+      </div>
+
+      <!-- Upload panel -->
+      <div id="uploadPanel">
+        <div class="dropzone" id="dropZone">
+          <div class="dropzone-icon">&#128196;</div>
+          <p><strong>Drag &amp; drop</strong> a PDF, JPG or PNG here</p>
+          <p class="muted">or</p>
+          <button type="button" class="btn btn-soft btn-sm" id="browseFileBtn">Choose file</button>
+          <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" hidden />
+        </div>
+        <div class="file-chip" id="fileChip" hidden>
+          <span class="file-chip-icon">&#128196;</span>
+          <div class="file-chip-info">
+            <strong id="fileChipName"></strong>
+            <span id="fileChipMeta" class="cell-sub"></span>
+          </div>
+          <button type="button" class="icon-btn" id="fileChipRemove" aria-label="Remove file">&times;</button>
+        </div>
+      </div>
+
+      <!-- Camera panel -->
+      <div id="cameraPanel" hidden>
+        <div class="camera-frame">
+          <video id="cameraVideo" autoplay playsinline muted></video>
+          <canvas id="cameraCanvas" hidden></canvas>
+        </div>
+        <div class="head-actions" style="margin-top:10px;">
+          <button type="button" class="btn btn-soft btn-sm" id="startCameraBtn">Start camera</button>
+          <button type="button" class="btn btn-primary btn-sm" id="captureBtn" disabled>&#128247; Capture page</button>
+        </div>
+        <p class="muted" id="cameraHint">Works on both mobile and desktop browsers with camera access.</p>
+
+        <div class="page-strip" id="pageStrip"></div>
+      </div>
+
+      <div class="grid-2" style="margin-top:14px;">
+        <div class="field">
+          <label for="agreementProperty">Property</label>
+          <select id="agreementProperty" class="select">
+            <option value="">— Not linked —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="agreementTenant">Tenant</label>
+          <select id="agreementTenant" class="select">
+            <option value="">— Not linked —</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="agreementStart">Agreement start date</label>
+          <input type="date" id="agreementStart" />
+        </div>
+        <div class="field">
+          <label for="agreementEnd">Agreement end date</label>
+          <input type="date" id="agreementEnd" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="agreementNotes">Notes</label>
+        <textarea id="agreementNotes" rows="2" maxlength="1000" placeholder="Optional notes"></textarea>
+      </div>
+
+      <div class="field" id="agreementProgressField" hidden>
+        <label>Uploading…</label>
+        <div class="mini-bar"><i id="agreementProgressBar" style="width:0%"></i></div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="agreementSubmit">
+          <span class="btn-label">Save agreement</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Replace file -->
+<div class="modal" id="replaceModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass small" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Replace document</h2>
+      <button class="icon-btn" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="replaceForm" class="modal-body">
+      <input type="hidden" id="replaceAgreementId" />
+      <div class="dropzone" id="replaceDropZone">
+        <div class="dropzone-icon">&#128196;</div>
+        <p><strong>Drag &amp; drop</strong> the new file here</p>
+        <p class="muted">or</p>
+        <button type="button" class="btn btn-soft btn-sm" id="replaceBrowseBtn">Choose file</button>
+        <input type="file" id="replaceFileInput" accept=".pdf,.jpg,.jpeg,.png" hidden />
+      </div>
+      <div class="file-chip" id="replaceFileChip" hidden>
+        <span class="file-chip-icon">&#128196;</span>
+        <div class="file-chip-info">
+          <strong id="replaceFileChipName"></strong>
+          <span id="replaceFileChipMeta" class="cell-sub"></span>
+        </div>
+        <button type="button" class="icon-btn" id="replaceFileChipRemove" aria-label="Remove file">&times;</button>
+      </div>
+      <div class="field" id="replaceProgressField" hidden>
+        <label>Uploading…</label>
+        <div class="mini-bar"><i id="replaceProgressBar" style="width:0%"></i></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="replaceSubmit">
+          <span class="btn-label">Replace</span>
+          <span class="spinner spinner-sm" hidden></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/layout.js"></script>
+<script src="/static/js/scanner.js"></script>
+<script src="/static/js/agreements.js"></script>
+{% endblock %}

@@ -1,0 +1,48 @@
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-mark">RF</div>
+    <div class="brand-text">
+      <strong>{{ app_name }}</strong>
+      <span>Rent Manager</span>
+    </div>
+    <button class="icon-btn sidebar-close" id="sidebarClose" aria-label="Close menu">&times;</button>
+  </div>
+
+  <nav class="nav">
+    <p class="nav-label">Overview</p>
+    <a href="/" class="nav-link {% if page == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">&#9632;</span> Dashboard
+    </a>
+
+    <p class="nav-label">Manage</p>
+    <a href="/properties" class="nav-link {% if page == 'properties' %}active{% endif %}">
+      <span class="nav-icon">&#9962;</span> Properties
+    </a>
+    <a href="/tenants" class="nav-link {% if page == 'tenants' %}active{% endif %}">
+      <span class="nav-icon">&#128100;</span> Tenants
+    </a>
+    <a href="/payments" class="nav-link {% if page == 'payments' %}active{% endif %}">
+      <span class="nav-icon">&#8377;</span> Rent &amp; Payments
+    </a>
+    <a href="/agreements" class="nav-link {% if page == 'agreements' %}active{% endif %}">
+      <span class="nav-icon">&#128196;</span> Agreements
+    </a>
+
+    <p class="nav-label">Account</p>
+    <a href="/settings" class="nav-link {% if page == 'settings' %}active{% endif %}">
+      <span class="nav-icon">&#9881;</span> Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar" id="sidebarAvatar">U</div>
+      <div class="user-meta">
+        <strong id="sidebarName">Loading…</strong>
+        <span id="sidebarEmail">{{ email }}</span>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-block" id="logoutBtn">Sign out</button>
+  </div>
+</aside>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
